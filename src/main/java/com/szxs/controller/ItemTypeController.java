@@ -85,6 +85,20 @@ public class ItemTypeController {
         return dmItemDao.queryAdvertising(itemTypeId,limit);
     }
 
+    //c3轮播图
+    @RequestMapping(value ="/querySlideShowPic", method = RequestMethod.POST)
+    public Object querySlideShowPic(@RequestParam("itemTypeId")Integer itemTypeId){
+        return itemService.querySlideShowPic(itemTypeId);
+    }
+
+    //c4猜你喜欢
+    @RequestMapping(value ="/queryItemLike", method = RequestMethod.POST)
+    public Object queryItemLike(@RequestParam("ageGroup")Integer ageGroup,
+                                @RequestParam("limit")Integer limit){
+        return itemService.queryItemLike(ageGroup,limit);
+    }
+
+
     /**
      * C6 热门排行
      * @param itemTypeId
