@@ -1,0 +1,20 @@
+server:
+  port: 7101
+
+# 配置提供者
+spring:
+  application:
+    name: dm-item-provider
+  datasource: #配置连接数据库信息
+    url: jdbc:mysql://192.168.0.106:3306/dmw
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 123456
+eureka:
+  client:
+    service-url:
+      defaultZone: http://root:dmw@localhost:7776/eureka/
+mybatis:
+  type-aliases-package: com.szxs.dto,com.szxs.entity
+  mapper-locations: classpath:xml/*.xml
+
