@@ -5,14 +5,18 @@ package com.szxs.controller;
 import com.szxs.ElasticsearchUtil;
 import com.szxs.dto.*;
 import com.szxs.entity.DmElasticSearchRequestParm;
+import com.szxs.entity.DmItem;
 import com.szxs.mapper.DmAreaMapper;
 import com.szxs.mapper.DmItemCommentMapper;
 import com.szxs.mapper.DmItemMapper;
 import com.szxs.mapper.DmItemTypeMapper;
+import com.szxs.util.VoItemsUtil;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 //提供者
@@ -63,6 +67,15 @@ public class ItemTypeController {
     List<VoItem> queryTodayRecommend(){
         return dmItemDao.queryTodayRecommend();
     }
+
+    /*B6
+    * 剧场类型推荐电影
+    */
+    @RequestMapping(value = "/queryFloorItems")
+    List<VoFloorItems> queryFloorItems(){
+        return dmItemTypeMapper.queryFloorItems();
+    }
+
     /*B7
      * 热门演出推荐排行
      */
@@ -75,30 +88,45 @@ public class ItemTypeController {
      */
     @RequestMapping(value = "/queryItemByAge")
     List<VoItems> queryItemByAge(@RequestParam("ageGroup") Integer ageGroup, @RequestParam("limit") Integer limit){
-        return dmItemDao.queryItemByAge(ageGroup,limit);
+        List<DmItem> dmItemList = dmItemDao.queryItemByAge(ageGroup, limit);
+        return VoItemsUtil.getVoItems(dmItemList);
     }
     /*C2
      * 精彩聚集
      */
     @RequestMapping(value = "/queryAdvertising")
     List<VoItems> queryAdvertising(@RequestParam("itemTypeId") Integer itemTypeId, @RequestParam("limit") Integer limit){
-        return dmItemDao.queryAdvertising(itemTypeId,limit);
+        List<DmItem> dmItemList = dmItemDao.queryAdvertising(itemTypeId, limit);
+        return VoItemsUtil.getVoItems(dmItemList);
     }
+    /*
+     * C7.根据月份查询剧场
+     */
+    @RequestMapping(value = "/queryItemByMonth")
+    List<VoItems> queryItemByMonth(@Param("itemTypeId") Integer itemTypeId, @Param("start") String start, @Param("end")String end){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            List<DmItem> dmItemList = dmItemDao.queryItemByMonth(itemTypeId, sdf.parse(start), sdf.parse(end));
+            return VoItemsUtil.getVoItems(dmItemList);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     //c3轮播图
     @RequestMapping(value ="/querySlideShowPic", method = RequestMethod.POST)
     public Object querySlideShowPic(@RequestParam("itemTypeId")Integer itemTypeId){
-        return itemService.querySlideShowPic(itemTypeId);
+        return dmItemDao.querySlideShowPic(itemTypeId);
     }
 
     //c4猜你喜欢
     @RequestMapping(value ="/queryItemLike", method = RequestMethod.POST)
     public Object queryItemLike(@RequestParam("ageGroup")Integer ageGroup,
                                 @RequestParam("limit")Integer limit){
-        return itemService.queryItemLike(ageGroup,limit);
+        return dmItemDao.queryItemLike(ageGroup,limit);
     }
-
-
     /**
      * C6 热门排行
      * @param itemTypeId
@@ -110,11 +138,12 @@ public class ItemTypeController {
     List<VoItems> queryItemHot(@RequestParam("itemTypeId")Integer itemTypeId,
                                @RequestParam("limit")Integer limit,
                                @RequestParam("areaId")Integer areaId){
-        return dmItemDao.queryItemHot(itemTypeId,limit,areaId);
+        List<DmItem> dmItemList = dmItemDao.queryItemHot(itemTypeId, limit, areaId);
+        return VoItemsUtil.getVoItems(dmItemList);
     }
     /*B5
-     * 即将开售
-     */
+    * 即将开售
+    */
     @RequestMapping(value = "/queryToSaleItem",method = RequestMethod.POST)
     public List<VoItem> queryToSaleItem(){
         return dmItemDao.queryToSaleItem();
